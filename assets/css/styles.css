@@ -1,0 +1,199 @@
+/* Base reset and typography */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  color: #ffffff;
+  background: #0b0f1a;
+  min-height: 100svh;
+}
+
+.no-select { -webkit-user-select: none; user-select: none; }
+
+/* Layout */
+.centered {
+  position: relative;
+  z-index: 1;
+  min-height: calc(var(--vh, 1vh) * 100);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(40px, 8vw, 76px);
+  margin: 0 0 8px;
+}
+
+.title-accent {
+  background: linear-gradient(135deg, #ff7ab6, #ffd56b 40%, #7ad7ff 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  font-size: clamp(14px, 2.8vw, 18px);
+  opacity: 0.9;
+  margin: 0 0 24px;
+}
+
+.card {
+  width: min(560px, 92%);
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  padding: 16px;
+}
+
+.label {
+  display: block;
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.input-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+
+input[type="text"], input[type="tel"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  outline: none;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.primary { background: linear-gradient(135deg, #ff7ab6, #ffb86b); color: #1b0f1a; }
+.btn.primary:active { transform: translateY(1px); }
+
+.footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 10px;
+  text-align: center;
+  opacity: 0.8;
+  z-index: 1;
+  font-size: 12px;
+}
+
+/* Decorative sky / stars / moon base (night view) */
+.sky { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
+.stars {
+  position: absolute; inset: 0;
+  background: radial-gradient(2px 2px at 20% 30%, #ffffffaa, transparent),
+              radial-gradient(1px 1px at 80% 40%, #ffffff99, transparent),
+              radial-gradient(2px 2px at 60% 70%, #ffffffaa, transparent),
+              radial-gradient(1px 1px at 30% 80%, #ffffff66, transparent);
+  mask: linear-gradient(#fff, transparent 80%);
+  animation: twinkle 6s linear infinite;
+  opacity: 0.75;
+}
+.moon {
+  position: absolute; width: 120px; height: 120px; border-radius: 50%;
+  right: 6vw; top: 8vh;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #d9e0ff 50%, #9fb3ff 70%, transparent 72%);
+  box-shadow: 0 0 40px #8aa4ff66;
+}
+.glow {
+  position: absolute; inset: -40% -20% auto -20%; height: 70%;
+  background: radial-gradient(50% 50% at 50% 0%, #3a1d5b88 0%, transparent 60%),
+              radial-gradient(60% 50% at 50% 0%, #1c204288 0%, transparent 66%);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 0.9; }
+}
+
+/* Reduce heavy effects when needed */
+.reduce-effects .stars { animation: none; opacity: 0.4; }
+.reduce-effects .glow { opacity: 0.5; }
+.gallery-active .sky { display: none; }
+
+/* Welcome page specific: wedding stage background */
+/* Uses an external internet image; replace URL if you prefer your own */
+body.welcome-stage {
+  background: url('../../images/DSC_0193.JPG') center/cover no-repeat fixed #0b0f1a;
+}
+.welcome-stage .centered .card { background: rgba(0,0,0,0.45); }
+
+/* Verify page: stronger night ambience */
+body.verify-night { background: radial-gradient(1200px 600px at 70% -10%, #1a1f3a, #0b0f1a 70%) fixed; }
+
+/* Gallery */
+.gallery-buttons { display: flex; gap: 14px; justify-content: center; margin-top: 12px; }
+.btn.gallery-btn { background: rgba(255,255,255,0.12); color: #fff; display: inline-flex; align-items: center; gap: 8px; }
+.btn.gallery-btn .btn-icon { font-size: 18px; }
+.back-btn { background: rgba(255,255,255,0.14); color: #fff; }
+
+.gallery-container, .video-container {
+  width: min(1100px, 94%);
+  margin: 0 auto;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.gallery-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.photo-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; }
+.photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.55));
+  opacity: 0; transition: opacity .25s ease;
+}
+.photo-item:hover .photo-overlay { opacity: 1; }
+.photo-info { position: absolute; bottom: 8px; left: 10px; font-size: 12px; }
+
+.coming-soon { display: grid; place-items: center; padding: 30px; }
+.coming-soon-icon { font-size: 48px; margin-bottom: 8px; }
+
+.welcome-section { margin-bottom: 12px; }
+
+.hidden { display: none !important; }
+
+/* Responsive columns for gallery */
+@media (max-width: 900px) {
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .photo-grid { grid-template-columns: 1fr; }
+}
+
+/* Lightbox slider */
+.lightbox-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  display: none;
+  background: rgba(0,0,0,0.85);
+}
+.lightbox-overlay.show { display: grid; place-items: center; }
+.lightbox-content { position: relative; width: min(96vw, 1100px); height: min(90vh, 720px); }
+.lightbox-img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; background: #000; }
+.lightbox-close, .lightbox-prev, .lightbox-next {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.15); color: #fff; border: none; cursor: pointer;
+  padding: 10px 12px; border-radius: 8px; font-size: 18px;
+}
+.lightbox-close { top: 12px; right: 12px; transform: none; }
+.lightbox-prev { left: 10px; }
+.lightbox-next { right: 10px; }

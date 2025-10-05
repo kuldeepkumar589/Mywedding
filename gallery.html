@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Gallery | My Engagement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <meta name="color-scheme" content="light only">
+</head>
+<body class="no-select">
+    <div class="sky">
+        <div class="stars"></div>
+        <div class="moon" aria-hidden="true"></div>
+        <div class="glow" aria-hidden="true"></div>
+    </div>
+
+    <main class="centered">
+        <div class="welcome-section">
+            <h1 class="title">Our Memories</h1>
+            <p class="subtitle" id="guestWelcome">Welcome back!</p>
+        </div>
+
+        <div class="gallery-buttons">
+            <button id="photosBtn" class="btn gallery-btn">
+                <span class="btn-icon">📸</span>
+                <span>Photos</span>
+            </button>
+            <button id="videoBtn" class="btn gallery-btn">
+                <span class="btn-icon">🎥</span>
+                <span>Video</span>
+            </button>
+        </div>
+
+        <!-- Photos Gallery -->
+        <div id="photosGallery" class="gallery-container hidden">
+            <div class="gallery-header">
+                <h2>Engagement Photos</h2>
+                <button id="backToMenu" class="btn back-btn">← Back</button>
+            </div>
+            <div class="photo-grid" id="photoGrid">
+                <!-- Photos will be loaded here -->
+            </div>
+          <div id="scrollSentinel"></div>
+        </div>
+
+        <!-- Lightbox Overlay -->
+        <div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+          <div class="lightbox-content">
+            <img id="lightboxImg" class="lightbox-img" src="" alt="Selected photo" />
+            <button id="lightboxClose" class="lightbox-close" aria-label="Close">✕</button>
+            <button id="lightboxPrev" class="lightbox-prev" aria-label="Previous">⟨</button>
+            <button id="lightboxNext" class="lightbox-next" aria-label="Next">⟩</button>
+          </div>
+        </div>
+
+        <!-- Video Section -->
+        <div id="videoSection" class="video-container hidden">
+            <div class="gallery-header">
+                <h2>Engagement Video</h2>
+                <button id="backToMenuVideo" class="btn back-btn">← Back</button>
+            </div>
+            <div class="coming-soon">
+                <div class="coming-soon-icon">🎬</div>
+                <h3>Coming Soon</h3>
+                <p>Our beautiful wedding video will be available soon!</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">With love • Forever</footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        (function() {
+            // Get guest name from session storage
+            const guestName = sessionStorage.getItem('guestName') || 'Guest';
+            document.getElementById('guestWelcome').textContent = `Welcome back, ${guestName}!`;
+
+            const photosBtn = document.getElementById('photosBtn');
+            const videoBtn = document.getElementById('videoBtn');
+            const photosGallery = document.getElementById('photosGallery');
+            const videoSection = document.getElementById('videoSection');
+            const backToMenu = document.getElementById('backToMenu');
+            const backToMenuVideo = document.getElementById('backToMenuVideo');
+            const photoGrid = document.getElementById('photoGrid');
+            const scrollSentinel = document.getElementById('scrollSentinel');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxClose = document.getElementById('lightboxClose');
+            const lightboxPrev = document.getElementById('lightboxPrev');
+            const lightboxNext = document.getElementById('lightboxNext');
+            let currentIndex = 0;
+            let observer = null;
+            let loadedCount = 0;
+            const batchSize = 12;
+            let imgObserver = null;
+
+            // Load photos from local images folder
+            const samplePhotos = [
+                { src: 'images/DSC_0001.JPG', alt: 'Photo DSC_0001' },
+                { src: 'images/DSC_0002.JPG', alt: 'Photo DSC_0002' },
+                { src: 'images/DSC_0003.JPG', alt: 'Photo DSC_0003' },
+                { src: 'images/DSC_0004.JPG', alt: 'Photo DSC_0004' },
+                { src: 'images/DSC_0005.JPG', alt: 'Photo DSC_0005' },
+                { src: 'images/DSC_0006.JPG', alt: 'Photo DSC_0006' },
+                { src: 'images/DSC_0007.JPG', alt: 'Photo DSC_0007' },
+                { src: 'images/DSC_0008.JPG', alt: 'Photo DSC_0008' },
+                { src: 'images/DSC_0009.JPG', alt: 'Photo DSC_0009' },
+                { src: 'images/DSC_0011.JPG', alt: 'Photo DSC_0011' },
+                { src: 'images/DSC_0013.JPG', alt: 'Photo DSC_0013' },
+                { src: 'images/DSC_0014.JPG', alt: 'Photo DSC_0014' },
+                { src: 'images/DSC_0015.JPG', alt: 'Photo DSC_0015' },
+                { src: 'images/DSC_0016.JPG', alt: 'Photo DSC_0016' },
+                { src: 'images/DSC_0017.JPG', alt: 'Photo DSC_0017' },
+                { src: 'images/DSC_0018.JPG', alt: 'Photo DSC_0018' },
+                { src: 'images/DSC_0019.JPG', alt: 'Photo DSC_0019' },
+                { src: 'images/DSC_0020.JPG', alt: 'Photo DSC_0020' },
+                { src: 'images/DSC_0021.JPG', alt: 'Photo DSC_0021' },
+                { src: 'images/DSC_0022.JPG', alt: 'Photo DSC_0022' },
+                { src: 'images/DSC_0023.JPG', alt: 'Photo DSC_0023' },
+                { src: 'images/DSC_0024.JPG', alt: 'Photo DSC_0024' },
+                { src: 'images/DSC_0025.JPG', alt: 'Photo DSC_0025' },
+                { src: 'images/DSC_0026.JPG', alt: 'Photo DSC_0026' },
+                { src: 'images/DSC_0029.JPG', alt: 'Photo DSC_0029' },
+                { src: 'images/DSC_0030.JPG', alt: 'Photo DSC_0030' },
+                { src: 'images/DSC_0031.JPG', alt: 'Photo DSC_0031' },
+                { src: 'images/DSC_0032.JPG', alt: 'Photo DSC_0032' },
+                { src: 'images/DSC_0033.JPG', alt: 'Photo DSC_0033' },
+                { src: 'images/DSC_0034.JPG', alt: 'Photo DSC_0034' },
+                { src: 'images/DSC_0035.JPG', alt: 'Photo DSC_0035' },
+                { src: 'images/DSC_0036.JPG', alt: 'Photo DSC_0036' },
+                { src: 'images/DSC_0037.JPG', alt: 'Photo DSC_0037' },
+                { src: 'images/DSC_0039.JPG', alt: 'Photo DSC_0039' },
+                { src: 'images/DSC_0040.JPG', alt: 'Photo DSC_0040' },
+                { src: 'images/DSC_0041.JPG', alt: 'Photo DSC_0041' },
+                { src: 'images/DSC_0042.JPG', alt: 'Photo DSC_0042' },
+                { src: 'images/DSC_0044.JPG', alt: 'Photo DSC_0044' },
+                { src: 'images/DSC_0046.JPG', alt: 'Photo DSC_0046' },
+                { src: 'images/DSC_0048.JPG', alt: 'Photo DSC_0048' },
+                { src: 'images/DSC_0049.JPG', alt: 'Photo DSC_0049' },
+                { src: 'images/DSC_0050.JPG', alt: 'Photo DSC_0050' },
+                { src: 'images/DSC_0052.JPG', alt: 'Photo DSC_0052' },
+                { src: 'images/DSC_0053.JPG', alt: 'Photo DSC_0053' },
+                { src: 'images/DSC_0054.JPG', alt: 'Photo DSC_0054' },
+                { src: 'images/DSC_0055.JPG', alt: 'Photo DSC_0055' },
+                { src: 'images/DSC_0057.JPG', alt: 'Photo DSC_0057' },
+                { src: 'images/DSC_0058.JPG', alt: 'Photo DSC_0058' },
+                { src: 'images/DSC_0059.JPG', alt: 'Photo DSC_0059' },
+                { src: 'images/DSC_0061.JPG', alt: 'Photo DSC_0061' },
+                { src: 'images/DSC_0062.JPG', alt: 'Photo DSC_0062' },
+                { src: 'images/DSC_0063.JPG', alt: 'Photo DSC_0063' },
+                { src: 'images/DSC_0064.JPG', alt: 'Photo DSC_0064' },
+                { src: 'images/DSC_0065.JPG', alt: 'Photo DSC_0065' },
+                { src: 'images/DSC_0066.JPG', alt: 'Photo DSC_0066' },
+                { src: 'images/DSC_0067.JPG', alt: 'Photo DSC_0067' },
+                { src: 'images/DSC_0068.JPG', alt: 'Photo DSC_0068' },
+                { src: 'images/DSC_0069.JPG', alt: 'Photo DSC_0069' },
+                { src: 'images/DSC_0070.JPG', alt: 'Photo DSC_0070' },
+                { src: 'images/DSC_0071.JPG', alt: 'Photo DSC_0071' },
+                { src: 'images/DSC_0075.JPG', alt: 'Photo DSC_0075' },
+                { src: 'images/DSC_0076.JPG', alt: 'Photo DSC_0076' },
+                { src: 'images/DSC_0078.JPG', alt: 'Photo DSC_0078' },
+                { src: 'images/DSC_0079.JPG', alt: 'Photo DSC_0079' },
+                { src: 'images/DSC_0080.JPG', alt: 'Photo DSC_0080' },
+                { src: 'images/DSC_0081.JPG', alt: 'Photo DSC_0081' },
+                { src: 'images/DSC_0082.JPG', alt: 'Photo DSC_0082' },
+                { src: 'images/DSC_0083.JPG', alt: 'Photo DSC_0083' },
+                { src: 'images/DSC_0085.JPG', alt: 'Photo DSC_0085' },
+                { src: 'images/DSC_0086.JPG', alt: 'Photo DSC_0086' },
+                { src: 'images/DSC_0088.JPG', alt: 'Photo DSC_0088' },
+                { src: 'images/DSC_0089.JPG', alt: 'Photo DSC_0089' },
+                { src: 'images/DSC_0090.JPG', alt: 'Photo DSC_0090' },
+                { src: 'images/DSC_0091.JPG', alt: 'Photo DSC_0091' },
+                { src: 'images/DSC_0092.JPG', alt: 'Photo DSC_0092' },
+                { src: 'images/DSC_0093.JPG', alt: 'Photo DSC_0093' },
+                { src: 'images/DSC_0094.JPG', alt: 'Photo DSC_0094' },
+                { src: 'images/DSC_0095.JPG', alt: 'Photo DSC_0095' },
+                { src: 'images/DSC_0096.JPG', alt: 'Photo DSC_0096' },
+                { src: 'images/DSC_0097.JPG', alt: 'Photo DSC_0097' },
+                { src: 'images/DSC_0098.JPG', alt: 'Photo DSC_0098' },
+                { src: 'images/DSC_0099.JPG', alt: 'Photo DSC_0099' },
+                { src: 'images/DSC_0100.JPG', alt: 'Photo DSC_0100' },
+                { src: 'images/DSC_0101.JPG', alt: 'Photo DSC_0101' },
+                { src: 'images/DSC_0102.JPG', alt: 'Photo DSC_0102' },
+                { src: 'images/DSC_0103.JPG', alt: 'Photo DSC_0103' },
+                { src: 'images/DSC_0104.JPG', alt: 'Photo DSC_0104' },
+                { src: 'images/DSC_0105.JPG', alt: 'Photo DSC_0105' },
+                { src: 'images/DSC_0106.JPG', alt: 'Photo DSC_0106' },
+                { src: 'images/DSC_0107.JPG', alt: 'Photo DSC_0107' },
+                { src: 'images/DSC_0108.JPG', alt: 'Photo DSC_0108' },
+                { src: 'images/DSC_0109.JPG', alt: 'Photo DSC_0109' },
+                { src: 'images/DSC_0112.JPG', alt: 'Photo DSC_0112' },
+                { src: 'images/DSC_0113.JPG', alt: 'Photo DSC_0113' },
+                { src: 'images/DSC_0114.JPG', alt: 'Photo DSC_0114' },
+                { src: 'images/DSC_0115.JPG', alt: 'Photo DSC_0115' },
+                { src: 'images/DSC_0116.JPG', alt: 'Photo DSC_0116' },
+                { src: 'images/DSC_0117.JPG', alt: 'Photo DSC_0117' },
+                { src: 'images/DSC_0118.JPG', alt: 'Photo DSC_0118' },
+                { src: 'images/DSC_0119.JPG', alt: 'Photo DSC_0119' },
+                { src: 'images/DSC_0122.JPG', alt: 'Photo DSC_0122' },
+                { src: 'images/DSC_0124.JPG', alt: 'Photo DSC_0124' },
+                { src: 'images/DSC_0125.JPG', alt: 'Photo DSC_0125' },
+                { src: 'images/DSC_0126.JPG', alt: 'Photo DSC_0126' },
+                { src: 'images/DSC_0127.JPG', alt: 'Photo DSC_0127' },
+                { src: 'images/DSC_0129.JPG', alt: 'Photo DSC_0129' },
+                { src: 'images/DSC_0130.JPG', alt: 'Photo DSC_0130' },
+                { src: 'images/DSC_0131.JPG', alt: 'Photo DSC_0131' },
+                { src: 'images/DSC_0132.JPG', alt: 'Photo DSC_0132' },
+                { src: 'images/DSC_0133.JPG', alt: 'Photo DSC_0133' },
+                { src: 'images/DSC_0134.JPG', alt: 'Photo DSC_0134' },
+                { src: 'images/DSC_0135.JPG', alt: 'Photo DSC_0135' },
+                { src: 'images/DSC_0136.JPG', alt: 'Photo DSC_0136' },
+                { src: 'images/DSC_0137.JPG', alt: 'Photo DSC_0137' },
+                { src: 'images/DSC_0139.JPG', alt: 'Photo DSC_0139' },
+                { src: 'images/DSC_0140.JPG', alt: 'Photo DSC_0140' },
+                { src: 'images/DSC_0141.JPG', alt: 'Photo DSC_0141' },
+                { src: 'images/DSC_0142.JPG', alt: 'Photo DSC_0142' },
+                { src: 'images/DSC_0143.JPG', alt: 'Photo DSC_0143' },
+                { src: 'images/DSC_0144.JPG', alt: 'Photo DSC_0144' },
+                { src: 'images/DSC_0145.JPG', alt: 'Photo DSC_0145' },
+                { src: 'images/DSC_0146.JPG', alt: 'Photo DSC_0146' },
+                { src: 'images/DSC_0147.JPG', alt: 'Photo DSC_0147' },
+                { src: 'images/DSC_0148.JPG', alt: 'Photo DSC_0148' },
+                { src: 'images/DSC_0149.JPG', alt: 'Photo DSC_0149' },
+                { src: 'images/DSC_0150.JPG', alt: 'Photo DSC_0150' },
+                { src: 'images/DSC_0151.JPG', alt: 'Photo DSC_0151' },
+                { src: 'images/DSC_0152.JPG', alt: 'Photo DSC_0152' },
+                { src: 'images/DSC_0153.JPG', alt: 'Photo DSC_0153' },
+                { src: 'images/DSC_0154.JPG', alt: 'Photo DSC_0154' },
+                { src: 'images/DSC_0156.JPG', alt: 'Photo DSC_0156' },
+                { src: 'images/DSC_0157.JPG', alt: 'Photo DSC_0157' },
+                { src: 'images/DSC_0158.JPG', alt: 'Photo DSC_0158' },
+                { src: 'images/DSC_0159.JPG', alt: 'Photo DSC_0159' },
+                { src: 'images/DSC_0160.JPG', alt: 'Photo DSC_0160' },
+                { src: 'images/DSC_0161.JPG', alt: 'Photo DSC_0161' },
+                { src: 'images/DSC_0162.JPG', alt: 'Photo DSC_0162' },
+                { src: 'images/DSC_0164.JPG', alt: 'Photo DSC_0164' },
+                { src: 'images/DSC_0165.JPG', alt: 'Photo DSC_0165' },
+                { src: 'images/DSC_0167.JPG', alt: 'Photo DSC_0167' },
+                { src: 'images/DSC_0168.JPG', alt: 'Photo DSC_0168' },
+                { src: 'images/DSC_0169.JPG', alt: 'Photo DSC_0169' },
+                { src: 'images/DSC_0170.JPG', alt: 'Photo DSC_0170' },
+                { src: 'images/DSC_0171.JPG', alt: 'Photo DSC_0171' },
+                { src: 'images/DSC_0172.JPG', alt: 'Photo DSC_0172' },
+                { src: 'images/DSC_0173.JPG', alt: 'Photo DSC_0173' },
+                { src: 'images/DSC_0174.JPG', alt: 'Photo DSC_0174' },
+                { src: 'images/DSC_0175.JPG', alt: 'Photo DSC_0175' },
+                { src: 'images/DSC_0176.JPG', alt: 'Photo DSC_0176' },
+                { src: 'images/DSC_0177.JPG', alt: 'Photo DSC_0177' },
+                { src: 'images/DSC_0178.JPG', alt: 'Photo DSC_0178' },
+                { src: 'images/DSC_0179.JPG', alt: 'Photo DSC_0179' },
+                { src: 'images/DSC_0180.JPG', alt: 'Photo DSC_0180' },
+                { src: 'images/DSC_0181.JPG', alt: 'Photo DSC_0181' },
+                { src: 'images/DSC_0182.JPG', alt: 'Photo DSC_0182' },
+                { src: 'images/DSC_0183.JPG', alt: 'Photo DSC_0183' },
+                { src: 'images/DSC_0184.JPG', alt: 'Photo DSC_0184' },
+                { src: 'images/DSC_0185.JPG', alt: 'Photo DSC_0185' },
+                { src: 'images/DSC_0186.JPG', alt: 'Photo DSC_0186' },
+                { src: 'images/DSC_0187.JPG', alt: 'Photo DSC_0187' },
+                { src: 'images/DSC_0188.JPG', alt: 'Photo DSC_0188' },
+                { src: 'images/DSC_0189.JPG', alt: 'Photo DSC_0189' },
+                { src: 'images/DSC_0190.JPG', alt: 'Photo DSC_0190' },
+                { src: 'images/DSC_0191.JPG', alt: 'Photo DSC_0191' },
+                { src: 'images/DSC_0192.JPG', alt: 'Photo DSC_0192' },
+                { src: 'images/DSC_0193.JPG', alt: 'Photo DSC_0193' }
+            ];
+
+            function renderPhoto(idx) {
+                const photo = samplePhotos[idx];
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                const img = document.createElement('img');
+                img.alt = photo.alt;
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.dataset.src = photo.src; // set when in view
+                photoItem.appendChild(img);
+                photoItem.insertAdjacentHTML('beforeend', `
+                    <div class="photo-overlay">
+                        <div class="photo-info">${photo.alt}</div>
+                    </div>
+                `);
+                photoItem.addEventListener('click', () => openLightbox(idx));
+                photoGrid.appendChild(photoItem);
+                if (imgObserver) imgObserver.observe(img);
+            }
+
+            function loadNextBatch() {
+                const end = Math.min(loadedCount + batchSize, samplePhotos.length);
+                for (let i = loadedCount; i < end; i++) {
+                    renderPhoto(i);
+                }
+                loadedCount = end;
+                if (loadedCount >= samplePhotos.length && observer) {
+                    observer.disconnect();
+                    observer = null;
+                }
+            }
+
+            function openLightbox(index) {
+                currentIndex = index;
+                lightboxImg.src = samplePhotos[currentIndex].src;
+                lightbox.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('show');
+                lightboxImg.src = '';
+                document.body.style.overflow = '';
+            }
+
+            function showPrev() {
+                currentIndex = (currentIndex - 1 + samplePhotos.length) % samplePhotos.length;
+                lightboxImg.src = samplePhotos[currentIndex].src;
+            }
+
+            function showNext() {
+                currentIndex = (currentIndex + 1) % samplePhotos.length;
+                lightboxImg.src = samplePhotos[currentIndex].src;
+            }
+
+            function showPhotos() {
+                photosGallery.classList.remove('hidden');
+                videoSection.classList.add('hidden');
+                document.body.classList.add('reduce-effects');
+                document.body.classList.add('gallery-active');
+                // reset grid and counters
+                photoGrid.innerHTML = '';
+                loadedCount = 0;
+                // setup per-image lazy observer
+                if (imgObserver) { imgObserver.disconnect(); }
+                imgObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting) {
+                            const el = entry.target;
+                            if (el.dataset && el.dataset.src) {
+                                el.src = el.dataset.src;
+                                el.removeAttribute('data-src');
+                                if (el.decode) { el.decode().catch(() => {}); }
+                            }
+                            imgObserver.unobserve(el);
+                        }
+                    }
+                }, { root: null, rootMargin: '300px 0px', threshold: 0.01 });
+                loadNextBatch();
+                // setup infinite scroll
+                if (observer) { observer.disconnect(); }
+                observer = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting) {
+                            loadNextBatch();
+                        }
+                    }
+                }, { root: null, rootMargin: '600px 0px', threshold: 0 });
+                observer.observe(scrollSentinel);
+            }
+
+            function showVideo() {
+                videoSection.classList.remove('hidden');
+                photosGallery.classList.add('hidden');
+                document.body.classList.remove('reduce-effects');
+                document.body.classList.remove('gallery-active');
+                if (observer) { observer.disconnect(); observer = null; }
+                if (imgObserver) { imgObserver.disconnect(); imgObserver = null; }
+            }
+
+            function showMenu() {
+                photosGallery.classList.add('hidden');
+                videoSection.classList.add('hidden');
+                document.body.classList.remove('reduce-effects');
+                document.body.classList.remove('gallery-active');
+                if (observer) { observer.disconnect(); observer = null; }
+                if (imgObserver) { imgObserver.disconnect(); imgObserver = null; }
+            }
+
+            photosBtn.addEventListener('click', showPhotos);
+            videoBtn.addEventListener('click', showVideo);
+            backToMenu.addEventListener('click', showMenu);
+            backToMenuVideo.addEventListener('click', showMenu);
+
+            lightboxClose.addEventListener('click', closeLightbox);
+            lightboxPrev.addEventListener('click', showPrev);
+            lightboxNext.addEventListener('click', showNext);
+            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+            document.addEventListener('keydown', (e) => {
+                if (!lightbox.classList.contains('show')) return;
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowLeft') showPrev();
+                if (e.key === 'ArrowRight') showNext();
+            });
+        })();
+    </script>
+</body>
+</html>

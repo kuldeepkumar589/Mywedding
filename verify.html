@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Verify | My Engagement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <meta name="color-scheme" content="light only">
+</head>
+<body class="no-select verify-night">
+    <div class="sky">
+        <div class="stars"></div>
+        <div class="moon" aria-hidden="true"></div>
+        <div class="glow" aria-hidden="true"></div>
+    </div>
+
+    <main class="centered">
+        <div class="welcome-section">
+            <h1 class="title">Welcome</h1>
+            <p class="subtitle" id="guestWelcome">Dear Guest</p>
+            <p class="welcome-text">Please enter your access code to continue</p>
+        </div>
+
+        <form id="verifyForm" class="card" autocomplete="off">
+            <label for="accessCode" class="label">Access Code</label>
+            <div class="input-row">
+                <input id="accessCode" name="accessCode" type="text" placeholder="Enter access code (e.g. E292025)" required maxlength="20" inputmode="text" />
+                <button type="submit" class="btn primary">Verify</button>
+            </div>
+        </form>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error-message hidden">
+            <div class="error-content">
+                <div class="error-gif">❌</div>
+                <p>You entered wrong access code</p>
+                <p class="error-sub">Please enter the correct access code</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">With love • Forever</footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        (function() {
+            // Get guest name from session storage
+            const guestName = sessionStorage.getItem('guestName') || 'Guest';
+            document.getElementById('guestWelcome').textContent = `Dear ${guestName}`;
+
+            const form = document.getElementById('verifyForm');
+            const accessInput = document.getElementById('accessCode');
+            const errorMessage = document.getElementById('errorMessage');
+
+            accessInput.focus();
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const accessCode = accessInput.value.trim();
+                
+                if (!accessCode) {
+                    accessInput.focus();
+                    return;
+                }
+
+                // Check if access code matches E292025 (case-insensitive)
+                if (accessCode.toUpperCase() === 'E292025') {
+                    // Store access code and redirect to gallery
+                    try { sessionStorage.setItem('accessCode', accessCode.toUpperCase()); } catch (_) {}
+                    window.location.href = 'gallery.html';
+                } else {
+                    // Show error message with animation
+                    errorMessage.classList.remove('hidden');
+                    accessInput.value = '';
+                    accessInput.focus();
+                    
+                    // Hide error after 3 seconds
+                    setTimeout(() => {
+                        errorMessage.classList.add('hidden');
+                    }, 3000);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

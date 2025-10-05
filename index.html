@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Welcome | My Engagement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <meta name="color-scheme" content="light only">
+</head>
+<body class="no-select welcome-stage">
+    <div class="sky">
+        <div class="stars"></div>
+        <div class="moon" aria-hidden="true"></div>
+        <div class="glow" aria-hidden="true"></div>
+    </div>
+
+    <main class="centered">
+        <h1 class="title title-accent">Welcome</h1>
+        <p class="subtitle">Two souls, one promise</p>
+
+        <form id="welcomeForm" class="card" autocomplete="off">
+            <label for="guestName" class="label">Enter Your Name</label>
+            <div class="input-row">
+                <input id="guestName" name="guestName" type="text" placeholder="Your full name" required maxlength="60" inputmode="text" />
+                <button type="submit" class="btn primary">Enter</button>
+            </div>
+        </form>
+    </main>
+
+    <footer class="footer">With love • Forever</footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        (function() {
+            const form = document.getElementById('welcomeForm');
+            const input = document.getElementById('guestName');
+            input.focus();
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = (input.value || '').trim();
+                if (!name) { input.focus(); return; }
+                try { sessionStorage.setItem('guestName', name); } catch (_) {}
+                window.location.href = 'verify.html';
+            });
+        })();
+    </script>
+</body>
+</html>
+
+
